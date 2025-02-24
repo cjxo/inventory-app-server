@@ -18,12 +18,13 @@ module.exports = {
         return res.status(400).json({ message: "name and background_colour must be provided" });
       }
       
-      const exists = await categories.getByName(name);
+      const namePrime = name.toLowerCase();
+      const exists = await categories.getByName(namePrime);
       if (exists) {
-        return res.status(409).json({ message: `Category name '${name}' already exists` });
+        return res.status(409).json({ message: `Category name '${namePrime}' already exists` });
       }
-      
-      const result = await categories.insert(name, background_colour);
+            
+      const result = await categories.insert(namePrime, background_colour);
       res.status(201).json({ message: "Successfully Created Category", category: result });
     } catch (err) {
       next(err);

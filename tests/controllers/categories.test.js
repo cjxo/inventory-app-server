@@ -39,7 +39,7 @@ describe("Categories Route", () => {
     const response = await app.get("/categories");
     assert.strictEqual(response.body.categories.length, defaultCategories.length);
     
-    const newCategory = { name: "Weapon", background_colour: "#888888" };
+    const newCategory = { name: "weapon", background_colour: "#888888" };
     
     const newCategoryResponse = await app
       .post("/categories")
@@ -57,6 +57,17 @@ describe("Categories Route", () => {
       return ((category.name === newCategoryResponse.body.category.name) &&
               (category.background_colour === newCategoryResponse.body.category.background_colour));
     }));
+  });
+  
+  test("category name should be stored as lowercase", async () => {
+    const newCategory = { name: "WEaPoN", background_colour: "#888888" };
+    const response = await app
+      .post("/categories")
+      .send(newCategory)
+      .expect(201)
+      .expect("Content-Type", /application\/json/);
+      
+    assert.ok(response.body.category.name === "weapon");
   });
   
   test("fails 409 if category name already exists", async () => {
