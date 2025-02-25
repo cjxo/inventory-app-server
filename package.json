@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "cross-env NODE_ENV=test node --test",
+    "test": "cross-env NODE_ENV=test node --test-concurrency=1 --test",
     "dev": "cross-env NODE_ENV=development node --watch ./index.js",
     "populate": "cross-env 'NODE_ENV=development node ./db/populate.js",
     "populate-test": "cross-env NODE_ENV=test node ./db/populate.js",

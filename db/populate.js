@@ -1,4 +1,6 @@
-const { Client } = require("pg");
+const pool = require("./pool");
+const items = require("./items");
+const categories = require("./categories");
 const { PG_CONNECTION_STRING, ENV } = require("../utils/config");
 
 const SQL = `
@@ -38,11 +40,7 @@ const defaultItems = [
 ];
 
 const main = async () => {
-  const client = new Client({
-    connectionString: PG_CONNECTION_STRING,
-  });
-  
-  await client.connect();
+  const client = pool;
   
   if (ENV === "test") {
     await client.query(`
@@ -54,45 +52,12 @@ const main = async () => {
   await client.query(SQL);
   
   // populate
-  if (ENV === "development") {
-    //
-    let insertStmnt;
-    
-    insertStmnt = `
-      INSERT INTO categories (name, background_colour)
-      VALUES 
-    `;
-    
-    for (let index = 0;
-         index < defaultCategories.length - 1;
-         ++index) {
-      insertStmnt += `('${defaultCategories[index].name}', '${defaultCategories[index].background_colour}'), `;
-    }
-    
-    insertStmnt += `('${defaultCategories[defaultCategories.length - 1].name}', '${defaultCategories[defaultCategories.length - 1].background_colour}') ON CONFLICT DO NOTHING;`;
-    await client.query(insertStmnt);
-        
-    insertStmnt = `
-      INSERT INTO items (name, price, quantity, type, src)
-      VALUES 
-    `;
-    
-    for (let index = 0;
-         index < defaultItems.length - 1;
-         ++index) {
-      const item = defaultItems[index];
-      insertStmnt += `('${item.name}', '${item.price}', '${item.quantity}', '${item.type}', '${item.src}'), `;
-    }
-    
-    insertStmnt += `('${defaultItems[defaultItems.length - 1].name}', '${defaultItems[defaultItems.length - 1].price}', '${defaultItems[defaultItems.length - 1].quantity}', '${defaultItems[defaultItems.length - 1].type}', '${defaultItems[defaultItems.length - 1].src}') ON CONFLICT DO NOTHING`;
-    
-    await client.query(insertStmnt);
-    
-    //console.log("DELETE: ", deleteStmnt);
-    //console.log("INSERT: ", insertStmnt);
+  if (ENV === "development") {    
+    const cate = await Promise.all(defaultCategories.map(category => categories.insert(category.name, category.background_colour)));
+    await Promise.all(defaultItems.map(item => items.insert(item.name, cate[item.type - 1].id, item.price, item.quantity, item.src)));
   }
   
-  await client.end();
+  await pool.end();
 };
 
 main();
