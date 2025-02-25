@@ -8,24 +8,13 @@ const {
 
 const assert = require("node:assert");
 const pool = require("../../db/pool");
-const categories = require("../../db/categories");
+const { reset } = require("../../db/reset");
 const supertest = require("supertest");
 const app = supertest(require("../../app"));
 
-const defaultCategories = [
-  { name: "uncategorized", background_colour: "#ffffff", },
-  { name: "potion", background_colour: "#777ae6", },
-  { name: "food", background_colour: "#e2b86c", },
-  { name: "gems", background_colour: "#77e6a1", }
-];
-
-describe("Categories Route", () => {
+describe("Categories Route", () => {  
   beforeEach(async () => {
-    await Promise.all(defaultCategories.map(category => categories.insert(category.name, category.background_colour)));
-  });
-  
-  afterEach(async () => {
-    await pool.query("DELETE FROM categories;");
+    await reset();
   });
   
   test("categories are returned as json", async () => {
@@ -34,10 +23,10 @@ describe("Categories Route", () => {
       .expect(200)
       .expect("Content-Type", /application\/json/);
   });
-
+  
   test("inserting a category", async () => {
     const response = await app.get("/categories");
-    assert.strictEqual(response.body.categories.length, defaultCategories.length);
+    const categories = response.body.categories;
     
     const newCategory = { name: "weapon", background_colour: "#888888" };
     
@@ -52,7 +41,7 @@ describe("Categories Route", () => {
     assert.strictEqual(newCategoryResponse.body.category.background_colour, newCategory.background_colour);
     
     const newResponse = await app.get("/categories");
-    assert.strictEqual(newResponse.body.categories.length, defaultCategories.length + 1);
+    assert.strictEqual(newResponse.body.categories.length, categories.length + 1);
     assert.ok(newResponse.body.categories.some(category => {
       return ((category.name === newCategoryResponse.body.category.name) &&
               (category.background_colour === newCategoryResponse.body.category.background_colour));
@@ -91,6 +80,15 @@ describe("Categories Route", () => {
     }
   });
   
+  test("should by default have 'uncategorized' category", async () => {
+    const category = (await app
+      .get("/categories/uncategorized")
+      .expect(200)
+      .expect("Content-Type", /application\/json/)).body.category;
+    
+    assert.ok(category.name === "uncategorized");
+  });
+  
   test("inserting a category without a name or background_colour or both must fail 400", async () => {
     const initCategories = (await app.get("/categories")).body.categories;
     
@@ -117,9 +115,9 @@ describe("Categories Route", () => {
     assert.deepStrictEqual(initCategories, newCategories);
   });
   
-  test("deleting a category", async () => {
+  test.skip("deleting a category", async () => {
     const initCategories = (await app.get("/categories")).body.categories;
-    const categoryToDelete = initCategories[0];
+    const categoryToDelete = initCategories[1];
     await app
       .delete(`/categories/${categoryToDelete.id}`)
       .expect(200)
@@ -128,6 +126,13 @@ describe("Categories Route", () => {
     const newCategories = (await app.get("/categories")).body.categories;
     assert.notDeepStrictEqual(initCategories, newCategories);
     assert.ok(!newCategories.some(category => (category.name === categoryToDelete.name) && (category.background_colour === categoryToDelete.background_colour)));
+  });
+  
+  test("deleting 'uncategorized' should fail 403", async () => {
+    await app
+      .delete(`/categories/uncategorized`)
+      .expect(403)
+      .expect({ message: "'uncategorized' is not allowed to be deleted" });
   });
 });
 

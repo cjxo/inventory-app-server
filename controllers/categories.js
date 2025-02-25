@@ -1,4 +1,5 @@
 const categories = require("../db/categories");
+const items = require("../db/items");
 
 module.exports = {
   getAll: async (req, res, next) => {
@@ -38,7 +39,14 @@ module.exports = {
         return res.status(400).json({ message: "id must be provided" });
       }
       
-      const result = await categories.getByID(id);
+      let newID = parseInt(id);
+      
+      if (!newID) {
+        const category = await categories.getByName(id);
+        newID = category.id;
+      }
+
+      const result = await categories.getByID(newID);
       res.json({ message: "Request Granted", category: result });
     } catch (err) {
       next(err);
@@ -52,7 +60,25 @@ module.exports = {
         return res.status(400).json({ message: "id must be provided" });
       }
       
-      const result = await categories.deleteByID(id);
+      let newID = parseInt(id);
+      let category;
+      
+      if (!newID) {
+        category = await categories.getByName(id);
+        newID = category.id;
+      } else {
+        category = await categories.getByID(newID);
+      }
+      
+      if (category.name === "uncategorized") {
+        return res.status(403).json({ message: "'uncategorized' is not allowed to be deleted" });
+      }
+      
+      //const category = getByID
+      
+      //items.makeUncategorizedGivenCategory();
+      
+      const result = await categories.deleteByID(newID);
       res.status(200).json({ message: "Successfully Deleted Category" });
     } catch (err) {
       next(err);

@@ -44,4 +44,16 @@ module.exports = {
     
     await pool.query(SQL, [id]);
   },
+  
+  getByCategoryID: async (categoryID) => {
+    const SQL = `
+      SELECT items.*, categories.name AS type_name FROM items
+      INNER JOIN categories
+        ON categories.id = items.type
+      WHERE items.type = $1;
+    `;
+    
+    const { rows } = await pool.query(SQL, [categoryID]);
+    return rows;
+  },
 };
