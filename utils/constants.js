@@ -2,7 +2,7 @@ const defaultCategories = [
   { name: "potion", background_colour: "#777ae6", },
   { name: "food", background_colour: "#e2b86c", },
   { name: "gems", background_colour: "#77e6a1", },
-  { name: "weapons", background_colour: "#77e6a1", },
+  { name: "weapons", background_colour: "#e677e0", },
 ];
 
 const defaultItems = [

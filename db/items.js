@@ -56,4 +56,14 @@ module.exports = {
     const { rows } = await pool.query(SQL, [categoryID]);
     return rows;
   },
+
+  changeItemCategoryFromCategoryIDToNewCategoryID: async (categoryID, newCategoryID) => {
+    const SQL = `
+      UPDATE items
+      SET type = $2
+      WHERE type = $1;
+    `;
+    
+    await pool.query(SQL, [categoryID, newCategoryID]);
+  },
 };

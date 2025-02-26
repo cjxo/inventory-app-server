@@ -8,6 +8,7 @@ const {
 
 const assert = require("node:assert");
 const pool = require("../../db/pool");
+const items = require("../../db/items");
 const { reset } = require("../../db/reset");
 const supertest = require("supertest");
 const app = supertest(require("../../app"));
@@ -115,17 +116,30 @@ describe("Categories Route", () => {
     assert.deepStrictEqual(initCategories, newCategories);
   });
   
-  test.skip("deleting a category", async () => {
+  test("deleting a category", async () => {
     const initCategories = (await app.get("/categories")).body.categories;
     const categoryToDelete = initCategories[1];
+    const uncategorized = (await app.get("/categories/uncategorized")).body.category;
+    
+    const oldItems = await items.getByCategoryID(categoryToDelete.id);
+    const oldUncategorizedItems = await items.getByCategoryID(uncategorized.id);
+    
+    assert.ok(oldItems.every(item => oldUncategorizedItems.find(uitem => uitem.id === item.id) === undefined));
+    
     await app
       .delete(`/categories/${categoryToDelete.id}`)
       .expect(200)
-      .expect({ message: "Successfully Deleted Category" })
+      .expect({ message: "Successfully Deleted Category" });
     
     const newCategories = (await app.get("/categories")).body.categories;
     assert.notDeepStrictEqual(initCategories, newCategories);
     assert.ok(!newCategories.some(category => (category.name === categoryToDelete.name) && (category.background_colour === categoryToDelete.background_colour)));
+    
+    const newItems = await items.getByCategoryID(categoryToDelete.id);
+    const newUncategorizedItems = await items.getByCategoryID(uncategorized.id);
+    
+    assert.ok(newItems.length === 0);
+    assert.ok(oldItems.every(item => newUncategorizedItems.find(uitem => uitem.id === item.id) !== undefined));
   });
   
   test("deleting 'uncategorized' should fail 403", async () => {

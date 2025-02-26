@@ -74,9 +74,8 @@ module.exports = {
         return res.status(403).json({ message: "'uncategorized' is not allowed to be deleted" });
       }
       
-      //const category = getByID
-      
-      //items.makeUncategorizedGivenCategory();
+      const uncategorized = await categories.getByName("uncategorized");
+      await items.changeItemCategoryFromCategoryIDToNewCategoryID(newID, uncategorized.id);
       
       const result = await categories.deleteByID(newID);
       res.status(200).json({ message: "Successfully Deleted Category" });
