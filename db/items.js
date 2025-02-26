@@ -20,7 +20,16 @@ module.exports = {
       RETURNING *;
     `;
     
-    const { rows } = await pool.query(SQL, [name, type, price, quantity, src]);
+    const SQL_SELECT = `
+      SELECT items.*, categories.name AS type_name FROM items
+      INNER JOIN categories
+        ON categories.id = items.type
+      WHERE items.id = $1;
+    `;
+    
+    const insertedResult = await pool.query(SQL, [name, type, price, quantity, src]);
+    console.log()
+    const { rows } = await pool.query(SQL_SELECT, [insertedResult.rows[0].id]);
     return rows[0];
   },
   
@@ -65,5 +74,17 @@ module.exports = {
     `;
     
     await pool.query(SQL, [categoryID, newCategoryID]);
+  },
+  
+  getByName: async (name) => {
+    const SQL = `
+      SELECT items.*, categories.name AS type_name FROM items
+      INNER JOIN categories
+        ON categories.id = items.type
+      WHERE items.name = $1;
+    `;
+    
+    const { rows } = await pool.query(SQL, [name]);
+    return rows[0];
   },
 };

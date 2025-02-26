@@ -16,4 +16,7 @@ module.exports = {
   PG_CONNECTION_STRING: getConnString(),
   JWT_SECRET: process.env.JWT_SECRET,
   ENV: env,
+  SUPABASE_PROJ_URL: process.env.SUPABASE_PROJ_URL,
+  SUPABASE_API_KEY: process.env.SUPABASE_API_KEY,
+  ITEM_BUCKET: env === "test" ? "testitempngs" : "itempngs",
 };
