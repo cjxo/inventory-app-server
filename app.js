@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const app = express();
+const path = require("node:path");
 
 const { reset } = require("./db/reset");
 
@@ -29,6 +30,13 @@ app.post("/reset", async (req, res, next) => {
 
 app.use("/categories", categoriesRouter);
 app.use("/items", itemsRouter);
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../inventory-app-client/dist")));
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../inventory-app-client", "dist", "index.html"));
+  });
+}
 
 app.use(unknownEndpoint);
 app.use(errorHandler);

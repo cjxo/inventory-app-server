@@ -2,6 +2,8 @@ require("dotenv").config();
 
 const env = process.env.NODE_ENV;
 
+console.log(env)
+
 const getConnString = () => {
   if (env === "test") {
     return process.env.PG_CONNECTIONSTRING_TEST;
