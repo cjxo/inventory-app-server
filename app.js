@@ -19,7 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors({ origin: ["http://localhost:5173"], }));
 app.use(requestLogger);
 
-app.post("/reset", async (req, res, next) => {
+app.post("/api/reset", async (req, res, next) => {
   try {
     await reset();
     res.json({ message: "Successfully Reseted State" });
@@ -28,8 +28,8 @@ app.post("/reset", async (req, res, next) => {
   }
 });
 
-app.use("/categories", categoriesRouter);
-app.use("/items", itemsRouter);
+app.use("/api/categories", categoriesRouter);
+app.use("/api/items", itemsRouter);
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../inventory-app-client/dist")));
