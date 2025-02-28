@@ -12,7 +12,7 @@ const defaultItems = [
   { name: "Health Potion", price: "$5.99", quantity: 6, type: 1, src: "health-potion.png", },
   { name: "Speed Potion", price: "$5.99", quantity: 6, type: 1, src: "speed-potion.png", },
   { name: "Luck Potion", price: "$5.99", quantity: 6, type: 1, src: "luck-potion.png", },
-  { name: "Poison Potion", price: "$5.99", quantity: 6, type: 3, src: "poison-potion.png", },
+  { name: "Poison Potion", price: "$5.99", quantity: 6, type: 1, src: "poison-potion.png", },
   { name: "Diamond", price: "$1699.99", quantity: 4, type: 3,  src: "diamond.png", },
   { name: "Ruby", price: "$999.99", quantity: 4, type: 3, src: "ruby.png", },
 ];
