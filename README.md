@@ -1,5 +1,6 @@
 # inventory-app-server
 This is the API/server for the [inventory-app-client](https://github.com/cjxo/inventory-app-client). It handles Create, Read, and Delete operations for Items and Categories.
+Please see the [live preview](https://inventory-app-fullstack.onrender.com/). Pardon the delay of live preview loading, as I am using the free plan of Render!
 
 # Prerequisites
 - Node.js
